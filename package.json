@@ -1,0 +1,20 @@
+{
+  "name": "ticket-tag",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "configure": "node-gyp configure",
+    "build": "node-gyp build"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bindings": "^1.2.1",
+    "nan": "^2.6.2"
+  },
+  "devDependencies": {
+    "node-gyp": "^3.6.2"
+  }
+}
