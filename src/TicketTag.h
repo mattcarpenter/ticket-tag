@@ -8,10 +8,12 @@ class TicketTag
 {
 public:
 	TicketTag(std::string ticket_number);
-	TicketTag(cv::Mat image);
+	TicketTag(cv::Mat image, cv::RotatedRect rRect);
 	~TicketTag();
-	static std::vector<TicketTag> TicketTag::extract_from_image(std::string path);
+	static std::vector<TicketTag> TicketTag::extract_from_image(cv::Mat src);
 	cv::Mat get_image();
+	cv::RotatedRect get_rect();
 private:
 	cv::Mat image;
+	cv::RotatedRect rect;
 };

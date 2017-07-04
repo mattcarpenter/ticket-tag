@@ -16,15 +16,16 @@ TicketTag::TicketTag(string ticket_number)
 {
 }
 
-TicketTag::TicketTag(Mat image)
+TicketTag::TicketTag(Mat image, RotatedRect rRect)
 {
 	this->image = image;
+	this->rect = rRect;
 }
 
-vector<TicketTag> TicketTag::extract_from_image(string path)
+vector<TicketTag> TicketTag::extract_from_image(Mat src)
 {
 	vector<TicketTag> ticket_tags;
-	Mat src, src_gray;
+	Mat src_gray;
 	Mat canny_output;
 	vector<Point> template_contour;
 	vector<vector<Point> > contours;
@@ -32,7 +33,7 @@ vector<TicketTag> TicketTag::extract_from_image(string path)
 	RNG rng(12345);
 	Mat contours_drawing;
 
-	src = imread(path);
+  // Ticket tags should be a 5:1 rectangle
 	template_contour = { Point(0, 0), Point(500, 0), Point(500, 100), Point(0, 100) };
 	cvtColor(src, src_gray, CV_BGR2GRAY);
 
@@ -67,17 +68,28 @@ vector<TicketTag> TicketTag::extract_from_image(string path)
 
 			// get the rotation matrix
 			M = getRotationMatrix2D(rRect.center, angle, 1.0);
+
 			// perform the affine transformation
 			warpAffine(src, rotated, M, src.size(), INTER_CUBIC);
 
 			// crop the resulting image
 			getRectSubPix(rotated, rect_size, rRect.center, cropped);
 
-			ticket_tags.push_back(TicketTag(cropped));
+			ticket_tags.push_back(TicketTag(cropped, rRect));
 		}
 	}
 
 	return ticket_tags;
+}
+
+Mat TicketTag::get_image()
+{
+  return this->image;
+}
+
+RotatedRect TicketTag::get_rect()
+{
+  return this->rect;
 }
 
 TicketTag::~TicketTag()

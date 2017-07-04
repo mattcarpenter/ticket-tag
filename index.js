@@ -1,3 +1,7 @@
-const addon = require('bindings')('factorial.node');
+const addon = require('bindings')('tickettag.node');
+const fs = require('fs');
 
-console.log(addon.factorial(10)); // 3628800
+const image = fs.readFileSync('./board9.jpg');
+const out = addon.extractFromImage(image);
+console.log(out[0]);
+fs.writeFileSync('./out.jpg', out[0].data, 'binary');
