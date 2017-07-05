@@ -10,16 +10,43 @@
 using namespace cv;
 using namespace std;
 
+#define TAG_WIDTH 750
+#define TAG_HEIGHT 150
 #define THRESH 100
-
-TicketTag::TicketTag(string ticket_number)
-{
-}
+#define CHAR_WIDTH 61
+#define CHAR_MAP "DIFEON0123456789-"
 
 TicketTag::TicketTag(Mat image, RotatedRect rRect)
 {
   this->image = image;
   this->rect = rRect;
+}
+
+TicketTag::TicketTag(string text, Mat character_map)
+{
+  Mat out(TAG_HEIGHT, TAG_WIDTH, CV_8UC3, Scalar::all(0));
+  string charMap(CHAR_MAP);
+
+  // computer required x-offset to center the text
+  int text_width = text.length() * CHAR_WIDTH;
+  double margin = (TAG_WIDTH - text_width) / 2;
+
+  // iterate each character in the provided text
+  for(string::size_type i = 0; i < text.length(); i++)
+  {
+    // locate index in character map
+    for(string::size_type v = 0; v < charMap.length(); v++)
+    {
+      if (text.at(i) == charMap.at(v))
+      {
+        Rect src_rect(Point((v * CHAR_WIDTH) + v, 0), Point((v * CHAR_WIDTH) + CHAR_WIDTH + v, TAG_HEIGHT - 1));
+        Rect dest_rect(Point((i * CHAR_WIDTH) + margin, 0), Point((i * CHAR_WIDTH) + CHAR_WIDTH + margin, TAG_HEIGHT - 1));
+        character_map(src_rect).copyTo(out(dest_rect));
+      }
+    }
+  }
+
+  this->image = out;
 }
 
 vector<TicketTag> TicketTag::extract_from_image(Mat src)
@@ -73,9 +100,11 @@ vector<TicketTag> TicketTag::extract_from_image(Mat src)
       warpAffine(src, rotated, M, src.size(), INTER_CUBIC);
 
       // crop the resulting image
+      rect_size.width = rect_size.width * 0.9;
+      rect_size.height = rect_size.height * 0.8;
       getRectSubPix(rotated, rect_size, rRect.center, cropped);
-
-      ticket_tags.push_back(TicketTag(cropped, rRect));
+      Mat inverted = Scalar::all(255) - cropped;
+      ticket_tags.push_back(TicketTag(inverted, rRect));
     }
   }
 
