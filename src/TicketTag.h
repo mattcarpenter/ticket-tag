@@ -10,7 +10,7 @@ public:
 	TicketTag(cv::Mat image, cv::RotatedRect rRect);
 	TicketTag(std::string text, cv::Mat character_map);
 	~TicketTag();
-	static std::vector<TicketTag> TicketTag::extract_from_image(cv::Mat src);
+	static std::vector<TicketTag> extract_from_image(cv::Mat src);
 	cv::Mat get_image();
 	cv::RotatedRect get_rect();
 private:
